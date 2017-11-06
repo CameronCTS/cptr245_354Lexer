@@ -8,6 +8,7 @@ public class LexerTester
 
     public LexerTester (Lexer lexer)
     {
+
         m_lexer = lexer;
     }
 

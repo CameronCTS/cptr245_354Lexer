@@ -1,8 +1,19 @@
 public class Lexer {
 
+    public Token tok;
+
+    public void SetToken(int type, String strLexeme) {
+
+        tok = new Token(type, strLexeme);
+
+    }
+
     public Token GetToken() {
 
-        Token tok = new Token(1, "5");
+        tok.GetType();
+        tok.GetLexeme();
+
         return tok;
     }
+
 }
