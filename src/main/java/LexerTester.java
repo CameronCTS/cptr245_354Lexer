@@ -1,5 +1,3 @@
-import java.io.*;
-
 public class LexerTester
 {
     //-----------------------------------------------------------------
@@ -26,7 +24,7 @@ public class LexerTester
 
         while (true)
         {
-            token = m_lexer.GetToken ();
+            token = m_lexer.getToken();
 
             if (token.GetType () == Sym.EOF)
                 break;

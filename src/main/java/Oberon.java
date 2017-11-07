@@ -4,5 +4,6 @@ public class Oberon {
 
         Lexer lexer = new Lexer();
         LexerTester tester = new LexerTester(lexer);
+        tester.run();
     }
 }

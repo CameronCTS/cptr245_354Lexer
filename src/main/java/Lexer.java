@@ -6,7 +6,8 @@ import java.nio.file.Paths;
 
 public class Lexer {
 
-    public Token tok;
+    public String[] typeOrLexeme;
+    private Token tok;
 
     public static String readFile(String path, Charset encoding) {
 
@@ -19,13 +20,26 @@ public class Lexer {
         }
     }
 
-    public void SetToken(int type, String strLexeme) {
+    public void tokenize(String inputStr) {
+
+        int type = 1; //Report error if not set later;
+
+        typeOrLexeme = inputStr.split("\\s+|((?<=;|&)|(?=;|&))");
+
+        if (typeOrLexeme[0].equals("MODULE")) {
+            type = 20;
+        }
+        setToken(type, typeOrLexeme[1]);
+    }
+
+
+    public void setToken(int type, String strLexeme) {
 
         tok = new Token(type, strLexeme);
 
     }
 
-    public Token GetToken() {
+    public Token getToken() {
 
         tok.GetType();
         tok.GetLexeme();

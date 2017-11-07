@@ -4,8 +4,9 @@ import java.nio.charset.StandardCharsets;
 
 public class LexerTest {
 
-    public Lexer lexer;
-    public Token token;
+    private Lexer lexer;
+    private Token token;
+    private String inputString;
 
     @Before
     public void setUp() {
@@ -17,20 +18,56 @@ public class LexerTest {
     @Test
     public void testSetToken() {
 
-        lexer.SetToken(1, "10");
-        token = lexer.GetToken();
+        lexer.setToken(45, "10");
+        token = lexer.getToken();
         assertEquals(token.GetLexeme(), "10");
-        assertEquals(token.GetType(), 1);
+        assertEquals(token.GetType(), Sym.T_ASSIGN);
     }
 
     @Test
     public void testReadFile() {
-        assertEquals(lexer.readFile("src/main/inputTest.txt", StandardCharsets.UTF_8), "Test file.");
+
+        inputString = lexer.readFile("src/main/inputTest.txt", StandardCharsets.UTF_8);
+        assertEquals(inputString, "MODULE Hello;");
+    }
+
+    @Test
+    public void testTokenizeSingleToken() {
+
+        lexer.tokenize("MODULE Goodbye");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), 20);
+        assertEquals(token.GetLexeme(), "Goodbye");
+    }
+
+    @Test
+    public void testTokenizePunctuation() {
+
+        lexer.tokenize("MODULE Goodbye;MODULE Hello&");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), 20);
+        assertEquals(token.GetLexeme(), "Goodbye");
+        assertEquals(lexer.typeOrLexeme[2],";");
+        assertEquals(lexer.typeOrLexeme[5], "&");
     }
 
     /*
     @Test
-    null input throws IOException
-     */
+    public void testTokenizeMultipleTokens() {
+
+        lexer.tokenize("MODULE Goodbye;MODULE Hello");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), 20);
+        assertEquals(token.GetLexeme(), "Goodbye");
+    }
+    */
+
+
+    @Test
+    //null input throws IOException
+    public void testReadFileNotFound() {
+        assertEquals(lexer.readFile("src/main/doesNotExist.txt", StandardCharsets.UTF_8), "Error. Caught IOException");
+    }
+
 
 }

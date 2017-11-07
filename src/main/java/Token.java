@@ -25,6 +25,7 @@ public class Token
     //-----------------------------------------------------------------
 
     public int
+    // Returns a number that corresponds to an int in Sym.java
     GetType ()
     {
         return (m_nType);
