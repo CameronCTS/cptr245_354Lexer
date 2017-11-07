@@ -1,6 +1,6 @@
 import org.junit.*;
-
 import static org.junit.Assert.*;
+import java.nio.charset.StandardCharsets;
 
 public class LexerTest {
 
@@ -8,7 +8,7 @@ public class LexerTest {
     public Token token;
 
     @Before
-    public void setup() {
+    public void setUp() {
 
         lexer = new Lexer();
 
@@ -23,7 +23,14 @@ public class LexerTest {
         assertEquals(token.GetType(), 1);
     }
 
+    @Test
+    public void testReadFile() {
+        assertEquals(lexer.readFile("src/main/inputTest.txt", StandardCharsets.UTF_8), "Test file.");
+    }
 
-
+    /*
+    @Test
+    null input throws IOException
+     */
 
 }

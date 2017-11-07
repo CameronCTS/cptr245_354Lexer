@@ -17,7 +17,7 @@ public class LexerTester
     //
     //-----------------------------------------------------------------
 
-    public void Run ()
+    public void run()
     {
         boolean     bDone = false;
         Token       token = null;
