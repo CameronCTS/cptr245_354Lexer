@@ -12,7 +12,7 @@ public class LexerTest {
     public void setUp() {
 
         lexer = new Lexer();
-
+        lexer.tokenize("MODULE Goodbye");
     }
 
     @Test
@@ -33,30 +33,14 @@ public class LexerTest {
 
     @Test
     public void testTypeOrLexeme() {
-        lexer.tokenize("MODULE Goodbye");
+
         assertEquals(lexer.typeOrLexeme[0], "MODULE");
-    }
-
-    @Test
-    public void testTokenArray() {
-        lexer.tokenize("MODULE Goodbye");
-        assertEquals(lexer.tokenArray[0].GetType(), 20);
-    }
-
-    @Test
-    public void testTokenizeSingleToken() {
-
-        lexer.tokenize("MODULE Goodbye");
-        //token = lexer.getToken();
-        assertEquals(lexer.tokenArray[0].GetType(), 20);
-        assertEquals(lexer.tokenArray[0].GetLexeme(), "Goodbye");
     }
 
     @Test
     public void testTokenizeMultipleTokens() {
 
         lexer.tokenize("MODULE Goodbye MODULE Hello");
-        //token = lexer.getToken();
         assertEquals(lexer.tokenArray[1].GetType(), 20);
         assertEquals(lexer.tokenArray[1].GetLexeme(), "Hello");
     }
@@ -71,7 +55,20 @@ public class LexerTest {
 
     }
 
+    @Test
+    public void testIllegalCharacterSeparateToken() {
 
+        lexer.tokenize("MODULE Goodbye @");
+        assertEquals(lexer.tokenArray[1].GetType(), 1);
+
+    }
+
+    /*
+    @Test
+    public void testIllegalCharacterWithinToken() {
+
+    }
+    */
 
 
     @Test
