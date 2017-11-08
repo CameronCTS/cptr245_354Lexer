@@ -32,35 +32,46 @@ public class LexerTest {
     }
 
     @Test
+    public void testTypeOrLexeme() {
+        lexer.tokenize("MODULE Goodbye");
+        assertEquals(lexer.typeOrLexeme[0], "MODULE");
+    }
+
+    @Test
+    public void testTokenArray() {
+        lexer.tokenize("MODULE Goodbye");
+        assertEquals(lexer.tokenArray[0].GetType(), 20);
+    }
+
+    @Test
     public void testTokenizeSingleToken() {
 
         lexer.tokenize("MODULE Goodbye");
-        token = lexer.getToken();
-        assertEquals(token.GetType(), 20);
-        assertEquals(token.GetLexeme(), "Goodbye");
+        //token = lexer.getToken();
+        assertEquals(lexer.tokenArray[0].GetType(), 20);
+        assertEquals(lexer.tokenArray[0].GetLexeme(), "Goodbye");
+    }
+
+    @Test
+    public void testTokenizeMultipleTokens() {
+
+        lexer.tokenize("MODULE Goodbye MODULE Hello");
+        //token = lexer.getToken();
+        assertEquals(lexer.tokenArray[1].GetType(), 20);
+        assertEquals(lexer.tokenArray[1].GetLexeme(), "Hello");
     }
 
     @Test
     public void testTokenizePunctuation() {
 
-        lexer.tokenize("MODULE Goodbye;MODULE Hello&");
+        lexer.tokenize("MODULE Goodbye;MODULE Hello&= YAY");
         token = lexer.getToken();
-        assertEquals(token.GetType(), 20);
-        assertEquals(token.GetLexeme(), "Goodbye");
-        assertEquals(lexer.typeOrLexeme[2],";");
-        assertEquals(lexer.typeOrLexeme[5], "&");
+        assertEquals(lexer.tokenArray[1].GetType(),65);
+        assertEquals(lexer.tokenArray[3].GetType(), 43);
+
     }
 
-    /*
-    @Test
-    public void testTokenizeMultipleTokens() {
 
-        lexer.tokenize("MODULE Goodbye;MODULE Hello");
-        token = lexer.getToken();
-        assertEquals(token.GetType(), 20);
-        assertEquals(token.GetLexeme(), "Goodbye");
-    }
-    */
 
 
     @Test
