@@ -6,7 +6,8 @@ public class LexerTest {
 
     private Lexer lexer;
     private Token token;
-    private String inputString;
+    private char[] inputCharString;
+    private char[] inputTestCharArray;
 
     @Before
     public void setUp() {
@@ -27,10 +28,40 @@ public class LexerTest {
     @Test
     public void testReadFile() {
 
-        inputString = lexer.readFile("src/main/inputTest.txt", StandardCharsets.UTF_8);
-        assertEquals(inputString, "MODULE Hello;");
+        inputCharString = lexer.readFile("src/main/inputTest.txt", StandardCharsets.UTF_8);
+        String inputTestString = "MODULE Hello;";
+        inputTestCharArray = inputTestString.toCharArray();
+        assertArrayEquals(inputCharString, inputTestCharArray);
+
     }
 
+    @Test
+    public void testTokenizeCharsSemi() {
+        String inputTestString = "MODULE Hello;";
+        inputTestCharArray = inputTestString.toCharArray();
+        lexer.tokenizeChars(inputTestCharArray);
+        assertEquals(lexer.tokenArray[0].GetType(), Sym.T_SEMI);
+        assertEquals(lexer.tokenArray[0].GetLexeme(), ";");
+    }
+
+    @Test
+    public void testTokenizeCharsString() {
+        char[] charArray = {'"', 'h','e','l','l','o','"','e','x','t','r','a'};
+        lexer.tokenizeChars(charArray);
+        assertEquals(lexer.tokenArray[0].GetType(), Sym.T_STR_LITERAL);
+        assertEquals(lexer.tokenArray[0].GetLexeme(), "hello");
+    }
+
+
+
+
+
+
+
+
+
+
+    /*
     @Test
     public void testTypeOrLexeme() {
 
@@ -41,18 +72,17 @@ public class LexerTest {
     public void testTokenizeMultipleTokens() {
 
         lexer.tokenize("MODULE Goodbye MODULE Hello");
-        assertEquals(lexer.tokenArray[1].GetType(), 20);
-        assertEquals(lexer.tokenArray[1].GetLexeme(), "Hello");
+        assertEquals(lexer.tokenArray[1].GetType(), Sym.T_MODULE);
+        assertEquals(lexer.tokenArray[1].GetLexeme(), "MODULE");
     }
 
     @Test
     public void testTokenizePunctuation() {
 
         lexer.tokenize("MODULE Goodbye;MODULE Hello&= YAY");
-        token = lexer.getToken();
+        //token = lexer.getToken();
         assertEquals(lexer.tokenArray[1].GetType(),65);
         assertEquals(lexer.tokenArray[3].GetType(), 43);
-
     }
 
     @Test
@@ -63,18 +93,13 @@ public class LexerTest {
 
     }
 
-    /*
-    @Test
-    public void testIllegalCharacterWithinToken() {
-
-    }
     */
-
 
     @Test
     //null input throws IOException
     public void testReadFileNotFound() {
-        assertEquals(lexer.readFile("src/main/doesNotExist.txt", StandardCharsets.UTF_8), "Error. Caught IOException");
+
+        assertNull(lexer.readFile("src/main/doesNotExist.txt", StandardCharsets.UTF_8));
     }
 
 
