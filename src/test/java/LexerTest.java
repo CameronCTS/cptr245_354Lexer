@@ -13,7 +13,6 @@ public class LexerTest {
     public void setUp() {
 
         lexer = new Lexer();
-        lexer.tokenize("MODULE Goodbye");
     }
 
     @Test
@@ -37,13 +36,23 @@ public class LexerTest {
 
     @Test
     public void testTokenizeCharsSemi() {
-        String inputTestString = "MODULE Hello;";
+        String inputTestString = "MODULE ;";
         inputTestCharArray = inputTestString.toCharArray();
         lexer.tokenizeChars(inputTestCharArray);
-        assertEquals(lexer.tokenArray[0].GetType(), Sym.T_SEMI);
-        assertEquals(lexer.tokenArray[0].GetLexeme(), ";");
+        assertEquals(lexer.tokenArray[1].GetType(), Sym.T_SEMI);
+        assertEquals(lexer.tokenArray[1].GetLexeme(), ";");
     }
 
+    @Test
+    public void testTokenizeCharsKeyword() {
+        String str = "MODULE text";
+        char [] charArray = str.toCharArray();
+        lexer.tokenizeChars(charArray);
+
+        assertEquals(lexer.tokenArray[0].GetLexeme(), "MODULE");
+    }
+
+    /*
     @Test
     public void testTokenizeCharsString() {
         char[] charArray = {'"', 'h','e','l','l','o','"','e','x','t','r','a'};
@@ -51,6 +60,7 @@ public class LexerTest {
         assertEquals(lexer.tokenArray[0].GetType(), Sym.T_STR_LITERAL);
         assertEquals(lexer.tokenArray[0].GetLexeme(), "hello");
     }
+    */
 
 
 
