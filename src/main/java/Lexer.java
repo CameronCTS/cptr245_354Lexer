@@ -58,12 +58,28 @@ public class Lexer {
         if (Character.toString(charArray[index]).matches("[A-Z]")) {
 
             lexeme = keywordSearch();
-            type = typeSearch(lexeme);
+            type = keywordHashMap.get(lexeme);
             return new Token(type, lexeme);
+
+
+            // Add special case for INCLUDE token
+        }
+
+        // Tokenize ID
+        if (Character.toString(charArray[index]).matches("[a-z]")) {
+
+            lexeme = iDSearch();
+            return new Token(Sym.T_ID, lexeme);
 
         }
 
-        // Tokenize numbers:
+        // Tokenize Int literal
+
+        // Tokenize String literal
+
+        // Tokenize Real literal
+
+        // Tokenize Char literal
 
         // Tokenize punctuation tokens:
 
@@ -228,46 +244,86 @@ public class Lexer {
             return new Token(Sym.T_STAR,"*");
         }
 
-
-
-
-        // else if number check for decimal after number
         // error state
         return new Token(Sym.error, "error");
     }
 
 
     private String keywordSearch() {
-        int stringLength = index;
+        int totalLength = index;
+        int stringLength = 0;
         String lexemeStr = "";
 
 
         // Check if we have reached the end of charArray.
         // If present, add the next capital letter to lexemeStr.
-        while (stringLength + 1 < charArray.length) {
+        while (totalLength + 1 < charArray.length) {
 
-            if (Character.toString(charArray[stringLength]).matches("[A-Z]")) {
-                lexemeStr += charArray[stringLength];
-                stringLength++;
-            }
-
-            if (Character.isWhitespace(charArray[stringLength])) {
+            if (Character.isWhitespace(charArray[totalLength])) {
                 index += stringLength;
                 return lexemeStr;
             }
+
+            if (Character.toString(charArray[totalLength]).matches("[A-Z]")) {
+                lexemeStr += charArray[totalLength];
+                totalLength++;
+                stringLength++;
+            }
+
         }
+
 
         index += stringLength;
         return lexemeStr;
     }
 
-    // Hash map to match strings to strings and token types.
-    private int typeSearch(String lexemeStr) {
+private String iDSearch() {
+    int totalLength = index;
+    int stringLength = 0;
+    String lexemeStr = "";
 
-        return keywordHashMap.get(lexemeStr);
+
+    // Check if we have reached the end of charArray.
+    // If present, add the next capital letter to lexemeStr.
+    while (totalLength + 1 < charArray.length && stringLength <= 39) {
+
+        if (Character.isWhitespace(charArray[totalLength])) {
+            index += stringLength;
+            return lexemeStr;
+        }
+
+        if (Character.toString(charArray[totalLength]).matches("[a-zA-Z0-9\\-]")) {
+            lexemeStr += charArray[totalLength];
+            totalLength++;
+            stringLength++;
+        }
+
+        // If quotes are found in an ID:
+
+    }
+    // If the identifier is longer than 40 characters, read until a non-identifier character is found
+    // Set index = to this character.
+    // Return the identifier truncated to 40 characters.
+    if (stringLength > 40) {
+
+        while (Character.toString(charArray[totalLength]).matches("[^\\s&^|:,.=>{(<\\-#+});~/*\\[\\]]")) {
+
+            stringLength++;
+        }
+
+        System.err.println("Identifier too long.");
+        index += (stringLength - 1); // Put the non-identifier character back in the input stream.
+        return lexemeStr;
+
     }
 
-    public void hashMapInit() {
+    index += stringLength;
+    return lexemeStr;
+}
+
+    // Hash map to match strings to strings and token types.
+
+    private void hashMapInit() {
 
         keywordHashMap.put("ARRAY", Sym.T_ARRAY);
         keywordHashMap.put("BEGIN", Sym.T_BEGIN);
@@ -280,6 +336,38 @@ public class Lexer {
         keywordHashMap.put("ELSIF", Sym.T_ELSIF);
         keywordHashMap.put("END", Sym.T_END);
         keywordHashMap.put("EXIT", Sym.T_EXIT);
+        keywordHashMap.put("FOR", Sym.T_FOR);
+        keywordHashMap.put("IF", Sym.T_IF);
+        keywordHashMap.put("IMPORT", Sym.T_IMPORT);
+        keywordHashMap.put("IN", Sym.T_IN);
+        keywordHashMap.put("IS", Sym.T_IS);
+        keywordHashMap.put("LOOP", Sym.T_LOOP);
+        keywordHashMap.put("MOD", Sym.T_MOD);
+        keywordHashMap.put("MODULE", Sym.T_MODULE);
+        keywordHashMap.put("NIL", Sym.T_NIL);
+        keywordHashMap.put("OF", Sym.T_OF);
+        keywordHashMap.put("OR", Sym.T_OR);
+        keywordHashMap.put("POINTER", Sym.T_POINTER);
+        keywordHashMap.put("PROCEDURE", Sym.T_PROCEDURE);
+        keywordHashMap.put("RECORD", Sym.T_RECORD);
+        keywordHashMap.put("REPEAT", Sym.T_REPEAT);
+        keywordHashMap.put("RETURN", Sym.T_RETURN);
+        keywordHashMap.put("THEN", Sym.T_THEN);
+        keywordHashMap.put("TO", Sym.T_TO);
+        keywordHashMap.put("TYPE", Sym.T_TYPE);
+        keywordHashMap.put("UNTIL", Sym.T_UNTIL);
+        keywordHashMap.put("VAR", Sym.T_VAR);
+        keywordHashMap.put("WHILE", Sym.T_WHILE);
+        keywordHashMap.put("WITH", Sym.T_WITH);
+
+        // Predeclared identifiers are in this case equivalent to keywords
+        keywordHashMap.put("BOOLEAN", Sym.T_BOOLEAN);
+        keywordHashMap.put("CHAR", Sym.T_CHAR);
+        keywordHashMap.put("FALSE", Sym.T_FALSE);
+        keywordHashMap.put("INTEGER", Sym.T_INTEGER);
+        keywordHashMap.put("NEW", Sym.T_NEW);
+        keywordHashMap.put("REAL", Sym.T_REAL);
+        keywordHashMap.put("TRUE", Sym.T_TRUE);
     }
 
 
