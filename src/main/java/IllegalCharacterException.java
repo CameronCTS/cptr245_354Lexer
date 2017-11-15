@@ -1,4 +1,8 @@
-package PACKAGE_NAME;
+import java.io.IOException;
 
-public class IllegalCharacterException {
+public class IllegalCharacterException extends IOException {
+    public IllegalCharacterException(String message) {
+        super(message);
+    }
+
 }

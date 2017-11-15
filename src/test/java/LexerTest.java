@@ -1,5 +1,6 @@
 import org.junit.*;
 import static org.junit.Assert.*;
+
 import java.nio.charset.StandardCharsets;
 
 public class LexerTest {
@@ -16,15 +17,6 @@ public class LexerTest {
     }
 
     @Test
-    public void testSetToken() {
-
-        lexer.setToken(45, "10");
-        token = lexer.getToken();
-        assertEquals(token.GetLexeme(), "10");
-        assertEquals(token.GetType(), Sym.T_ASSIGN);
-    }
-
-    @Test
     public void testReadFile() {
 
         inputCharString = lexer.readFile("src/main/inputTest.txt", StandardCharsets.UTF_8);
@@ -34,83 +26,67 @@ public class LexerTest {
 
     }
 
-    @Test
-    public void testTokenizeCharsSemi() {
-        String inputTestString = "MODULE ;";
-        inputTestCharArray = inputTestString.toCharArray();
-        lexer.tokenizeChars(inputTestCharArray);
-        assertEquals(lexer.tokenArray[1].GetType(), Sym.T_SEMI);
-        assertEquals(lexer.tokenArray[1].GetLexeme(), ";");
-    }
-
-    @Test
-    public void testTokenizeCharsKeyword() {
-        String str = "MODULE text";
-        char [] charArray = str.toCharArray();
-        lexer.tokenizeChars(charArray);
-
-        assertEquals(lexer.tokenArray[0].GetLexeme(), "MODULE");
-    }
-
-    /*
-    @Test
-    public void testTokenizeCharsString() {
-        char[] charArray = {'"', 'h','e','l','l','o','"','e','x','t','r','a'};
-        lexer.tokenizeChars(charArray);
-        assertEquals(lexer.tokenArray[0].GetType(), Sym.T_STR_LITERAL);
-        assertEquals(lexer.tokenArray[0].GetLexeme(), "hello");
-    }
-    */
-
-
-
-
-
-
-
-
-
-
-    /*
-    @Test
-    public void testTypeOrLexeme() {
-
-        assertEquals(lexer.typeOrLexeme[0], "MODULE");
-    }
-
-    @Test
-    public void testTokenizeMultipleTokens() {
-
-        lexer.tokenize("MODULE Goodbye MODULE Hello");
-        assertEquals(lexer.tokenArray[1].GetType(), Sym.T_MODULE);
-        assertEquals(lexer.tokenArray[1].GetLexeme(), "MODULE");
-    }
-
-    @Test
-    public void testTokenizePunctuation() {
-
-        lexer.tokenize("MODULE Goodbye;MODULE Hello&= YAY");
-        //token = lexer.getToken();
-        assertEquals(lexer.tokenArray[1].GetType(),65);
-        assertEquals(lexer.tokenArray[3].GetType(), 43);
-    }
-
-    @Test
-    public void testIllegalCharacterSeparateToken() {
-
-        lexer.tokenize("MODULE Goodbye @");
-        assertEquals(lexer.tokenArray[1].GetType(), 1);
-
-    }
-
-    */
-
-    @Test
     //null input throws IOException
+    @Test
     public void testReadFileNotFound() {
 
         assertNull(lexer.readFile("src/main/doesNotExist.txt", StandardCharsets.UTF_8));
     }
+
+
+    @Test
+    public void getTokenAmp() {
+
+        lexer.readString("&");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_AMPERSAND);
+        assertEquals(token.GetLexeme(), "&");
+    }
+
+
+    @Test
+    public void getTokenArrow() {
+
+        lexer.readString("^");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_ARROW);
+        assertEquals(token.GetLexeme(), "^");
+    }
+
+    @Test
+    public void getTokenMultiple() {
+        String str = "&^";
+        lexer.readString(str);
+
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_AMPERSAND);
+        assertEquals(token.GetLexeme(), "&");
+
+        Token token2;
+        token2 = lexer.getToken();
+        assertEquals(token2.GetType(), Sym.T_ARROW);
+        assertEquals(token2.GetLexeme(), "^");
+
+    }
+
+    @Test
+    public void getTokenColon() {
+
+        lexer.readString(":");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_COLON);
+        assertEquals(token.GetLexeme(), ":");
+    }
+
+    @Test
+    public void getTokenAssign() {
+
+        lexer.readString(":=");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_ASSIGN);
+        assertEquals(token.GetLexeme(), ":=");
+    }
+
 
 
 }
