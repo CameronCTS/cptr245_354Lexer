@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 
 public class Lexer {
@@ -10,6 +11,7 @@ public class Lexer {
     //private Token newToken;
     private Token tok;
     private int index = 0;
+    private HashMap<String, Integer> keywordHashMap = new HashMap<>();
 
     // Method to read in a .txt file and output its contents as a char array.
     public char[] readFile(String path, Charset encoding) {
@@ -42,6 +44,7 @@ public class Lexer {
 
         String lexeme;
         int type = 0;
+        hashMapInit();
 
 
         // Ignore whitespace characters.
@@ -55,7 +58,8 @@ public class Lexer {
         if (Character.toString(charArray[index]).matches("[A-Z]")) {
 
             lexeme = keywordSearch();
-            //type =
+            type = typeSearch(lexeme);
+            return new Token(type, lexeme);
 
         }
 
@@ -247,7 +251,7 @@ public class Lexer {
                 stringLength++;
             }
 
-            if (Character.isWhitespace(charArray[stringLength + 1])) {
+            if (Character.isWhitespace(charArray[stringLength])) {
                 index += stringLength;
                 return lexemeStr;
             }
@@ -258,6 +262,25 @@ public class Lexer {
     }
 
     // Hash map to match strings to strings and token types.
+    private int typeSearch(String lexemeStr) {
+
+        return keywordHashMap.get(lexemeStr);
+    }
+
+    public void hashMapInit() {
+
+        keywordHashMap.put("ARRAY", Sym.T_ARRAY);
+        keywordHashMap.put("BEGIN", Sym.T_BEGIN);
+        keywordHashMap.put("BY", Sym.T_BY);
+        keywordHashMap.put("CASE", Sym.T_CASE);
+        keywordHashMap.put("CONST", Sym.T_CONST);
+        keywordHashMap.put("DIV", Sym.T_DIV);
+        keywordHashMap.put("DO", Sym.T_DO);
+        keywordHashMap.put("ELSE", Sym.T_ELSE);
+        keywordHashMap.put("ELSIF", Sym.T_ELSIF);
+        keywordHashMap.put("END", Sym.T_END);
+        keywordHashMap.put("EXIT", Sym.T_EXIT);
+    }
 
 
     private String twoCharToken(char firstChar, char secondChar) {

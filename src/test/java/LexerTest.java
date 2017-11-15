@@ -87,6 +87,14 @@ public class LexerTest {
         assertEquals(token.GetLexeme(), ":=");
     }
 
+    @Test
+    public void getTokenKeyword() {
+
+        lexer.readString("ARRAY ");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_ARRAY);
+        assertEquals(token.GetLexeme(), "ARRAY");
+    }
 
 
 }
