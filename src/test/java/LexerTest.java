@@ -145,6 +145,24 @@ public class LexerTest {
         assertEquals(token.GetLexeme(), "This test string is much, much longer that 80 characters. Would you not agree? ");
     }
 
+    @Test
+    public void testGetTokenStringEOF() {
+
+        lexer.readString("'This test string is much, much longer that 80 characters. Would you not agree? I would. EOF;");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_STR_LITERAL);
+        assertEquals(token.GetLexeme(), "This test string is much, much longer that 80 characters. Would you not agree? ");
+    }
+
+    @Test
+    public void testGetTokenStringNewLine() {
+
+        lexer.readString("'This test string is much, much longer that 80 characters. Would you not agree? I would.\n;");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_STR_LITERAL);
+        assertEquals(token.GetLexeme(), "This test string is much, much longer that 80 characters. Would you not agree? ");
+    }
+
     // Keep this test.
     @Test
     public void testGetTokenStringDoubleSingle() {
@@ -162,5 +180,33 @@ public class LexerTest {
         token = lexer.getToken();
         assertEquals(token.GetType(), Sym.T_STR_LITERAL);
         assertEquals(token.GetLexeme(),  "test \"in double quotes.\"");
+    }
+
+    @Test
+    public void testGetTokenReal() {
+
+        lexer.readString("1.23E+45;");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_REAL_LITERAL);
+        assertEquals(token.GetLexeme(), "1.23E+45");
+    }
+
+
+    @Test
+    public void testGetTokenRealNoED() {
+
+        lexer.readString("0001.2345678911;");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_REAL_LITERAL);
+        assertEquals(token.GetLexeme(), "1.23456789");
+    }
+
+    @Test
+    public void testGetTokenRealExpTooLong() {
+
+        lexer.readString("0001.2345678911D004569;");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_REAL_LITERAL);
+        assertEquals(token.GetLexeme(), "1.23456789D456");
     }
 }
