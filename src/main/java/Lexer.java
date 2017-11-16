@@ -1,4 +1,3 @@
-import java.io.CharArrayReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -8,9 +7,7 @@ import java.util.HashMap;
 
 public class Lexer {
 
-    private char[] charArray;
-    //private Token newToken;
-    private Token tok;
+    public char[] charArray;
     private int index = 0;
     private HashMap<String, Integer> keywordHashMap = new HashMap<>();
 
@@ -82,6 +79,23 @@ public class Lexer {
         }
 
         // Tokenize String literal
+        // If string is started using double quotes.
+        if (Character.toString(charArray[index]).matches("[\"]")) {
+
+            index++; // Increment past the " or ' to make the stringSearch function easier.
+                     // (Also so " or ' is not included at the beginning of the string literal.)
+            lexeme = stringSearch("\"");
+            return new Token(Sym.T_STR_LITERAL, lexeme);
+        }
+
+        // If string is started using single quotes.
+        if (Character.toString(charArray[index]).matches("[']")) {
+
+            index++; // Increment past the " or ' to make the stringSearch function easier.
+            // (Also so " or ' is not included at the beginning of the string literal.)
+            lexeme = stringSearch("'");
+            return new Token(Sym.T_STR_LITERAL, lexeme);
+        }
 
         // Tokenize Real literal
 
@@ -255,33 +269,33 @@ public class Lexer {
     }
 
 
-    private String keywordSearch() {
-        int totalLength = index;
-        int stringLength = 0;
-        String lexemeStr = "";
+private String keywordSearch() {
+    int totalLength = index;
+    int stringLength = 0;
+    String lexemeStr = "";
 
 
-        // Check if we have reached the end of charArray.
-        // If present, add the next capital letter to lexemeStr.
-        while (totalLength + 1 < charArray.length) {
+    // Check if we have reached the end of charArray.
+    // If present, add the next capital letter to lexemeStr.
+    while (totalLength + 1 < charArray.length) {
 
-            if (Character.isWhitespace(charArray[totalLength])) {
-                index += stringLength;
-                return lexemeStr;
-            }
-
-            if (Character.toString(charArray[totalLength]).matches("[A-Z]")) {
-                lexemeStr += charArray[totalLength];
-                totalLength++;
-                stringLength++;
-            }
-
+        if (Character.isWhitespace(charArray[totalLength])) {
+            index += stringLength;
+            return lexemeStr;
         }
 
+        if (Character.toString(charArray[totalLength]).matches("[A-Z]")) {
+            lexemeStr += charArray[totalLength];
+            totalLength++;
+            stringLength++;
+        }
 
-        index += stringLength;
-        return lexemeStr;
     }
+
+
+    index += stringLength;
+    return lexemeStr;
+}
 
 private String iDSearch() {
     int totalLength = index;
@@ -360,6 +374,8 @@ private String intSearch() {
             stringLength++;
         }
 
+        // Add error case if a-z or G-Z are found.
+
 
     }
     // If the int literal is longer than 10 characters, read until a non-alphanumeric character is found
@@ -367,7 +383,7 @@ private String intSearch() {
     // Return the identifier truncated to 10 characters.
     if (stringLength >= 10) {
 
-        while (Character.toString(charArray[totalLength]).matches("[a-zA-Z0-9]")) {
+        while (Character.toString(charArray[totalLength]).matches("[A-FH0-9]")) {
 
             // If H is found after more than 10 characters, append it as character 10 and
             // return lexemeStr and print error message.
@@ -379,6 +395,9 @@ private String intSearch() {
                 index = totalLength;
                 return lexemeStr;
             }
+
+            // Add error case if a-z or G-Z are found.
+
             totalLength++;
         }
 
@@ -391,8 +410,52 @@ private String intSearch() {
     index = totalLength;
     return lexemeStr;
 }
-    // Hash map to match strings to strings and token types.
 
+private String stringSearch(String exitQuote) {
+    int totalLength = index;    // Marks the number of the character in the entire char array.
+    int stringLength = 0;       // Marks the number of the character in the sub array.
+    String lexemeStr = "";
+
+    // Check if we have reached the end of charArray.
+    // If present, add the next character to lexemeStr.
+    while (totalLength + 1 < charArray.length && stringLength < 79) {
+
+        // Return lexemeStr if " or ' is found
+        if (Character.toString(charArray[totalLength]).matches(exitQuote)) {
+            // Don't add " or ' to the string but still increment past it.
+            totalLength++;
+            index = totalLength;
+            return lexemeStr;
+        }
+
+        // Add all characters that are not " or ' to lexeme.
+        lexemeStr += charArray[totalLength];
+        totalLength++;
+        stringLength++;
+
+    }
+    // If the string literal is longer than 80 characters, read until a " or ' is found.
+    // Set index = to this character + 1.
+    // Return the identifier truncated to 80 characters.
+    if (stringLength >= 79) {
+
+        // Iterate past all characters after 80.
+        while (!Character.toString(charArray[totalLength]).matches(exitQuote)) {
+
+            totalLength++;
+        }
+
+        System.err.println("Str_literal too long.");
+        index = totalLength;
+        return lexemeStr;
+
+    }
+
+    index = totalLength;
+    return lexemeStr;
+}
+
+    // Hash map to match strings to strings and token types.
     private void hashMapInit() {
 
         keywordHashMap.put("ARRAY", Sym.T_ARRAY);

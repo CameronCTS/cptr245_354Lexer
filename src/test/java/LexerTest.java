@@ -136,4 +136,31 @@ public class LexerTest {
         assertEquals(token2.GetLexeme(), "1234567890");
     }
 
+    @Test
+    public void testGetTokenStringTooLong() {
+
+        lexer.readString("'This test string is much, much longer that 80 characters. Would you not agree? I would.';");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_STR_LITERAL);
+        assertEquals(token.GetLexeme(), "This test string is much, much longer that 80 characters. Would you not agree? ");
+    }
+
+    // Keep this test.
+    @Test
+    public void testGetTokenStringDoubleSingle() {
+
+        lexer.readString("\"test 'in single quotes.'\";");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_STR_LITERAL);
+        assertEquals(token.GetLexeme(),  "test 'in single quotes.'");
+    }
+
+    @Test
+    public void testGetTokenStringSingleDouble() {
+
+        lexer.readString("'test \"in double quotes.\"';");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_STR_LITERAL);
+        assertEquals(token.GetLexeme(),  "test \"in double quotes.\"");
+    }
 }
