@@ -1,9 +1,7 @@
-env:
-  global:
-    - CC_TEST_REPORTER_ID=e0b7b3a40211c7d0b7ad636f52433e4961078d6227169599bc7bd5e7ed25dd1a
 language: java
-before_build:
-  -./cc-test-reporter before-build
+sudo: false # faster builds
 
-after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+script: "mvn cobertura:cobertura"
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
