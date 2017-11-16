@@ -1,3 +1,4 @@
+import java.io.CharArrayReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -74,6 +75,11 @@ public class Lexer {
         }
 
         // Tokenize Int literal
+        if (Character.toString(charArray[index]).matches("[0-9]")) {
+
+            lexeme = intSearch();
+            return new Token(Sym.T_INT_LITERAL, lexeme);
+        }
 
         // Tokenize String literal
 
@@ -288,7 +294,7 @@ private String iDSearch() {
     while (totalLength + 1 < charArray.length && stringLength <= 39) {
 
         if (Character.isWhitespace(charArray[totalLength])) {
-            index += stringLength;
+            index = totalLength;
             return lexemeStr;
         }
 
@@ -321,6 +327,70 @@ private String iDSearch() {
     return lexemeStr;
 }
 
+private String intSearch() {
+    int totalLength = index;    // Marks the number of the character in the entire char array.
+    int stringLength = 0;       // Marks the number of the character in the sub array.
+    String lexemeStr = "";
+
+    while (Character.toString(charArray[totalLength]).matches("0")) {
+
+        totalLength++;
+    }
+    // Check if we have reached the end of charArray.
+    // If present, add the next character to lexemeStr.
+    while (totalLength + 1 < charArray.length && stringLength < 10) {
+
+        // If whitespace is found, the end of the lexeme has been reached.
+        if (Character.isWhitespace(charArray[totalLength])) {
+            index = totalLength;
+            return lexemeStr;
+        }
+
+        // Return lexemeStr if H is found
+        if (Character.toString(charArray[totalLength]).matches("[H]")) {
+            lexemeStr += charArray[totalLength];
+            totalLength++;
+            index = totalLength;
+            return lexemeStr;
+        }
+
+        if (Character.toString(charArray[totalLength]).matches("[A-F0-9\\-]")) {
+            lexemeStr += charArray[totalLength];
+            totalLength++;
+            stringLength++;
+        }
+
+
+    }
+    // If the int literal is longer than 10 characters, read until a non-alphanumeric character is found
+    // Set index = to this character.
+    // Return the identifier truncated to 10 characters.
+    if (stringLength >= 10) {
+
+        while (Character.toString(charArray[totalLength]).matches("[a-zA-Z0-9]")) {
+
+            // If H is found after more than 10 characters, append it as character 10 and
+            // return lexemeStr and print error message.
+            if (Character.toString(charArray[totalLength]).matches("[H]")) {
+
+                lexemeStr += charArray[totalLength];
+                System.err.println("Int_literal too long.");
+                totalLength++;
+                index = totalLength;
+                return lexemeStr;
+            }
+            totalLength++;
+        }
+
+        System.err.println("Int_literal too long.");
+        index = (totalLength - 1); // Put the non-identifier character back in the input stream.
+        return lexemeStr;
+
+    }
+
+    index = totalLength;
+    return lexemeStr;
+}
     // Hash map to match strings to strings and token types.
 
     private void hashMapInit() {

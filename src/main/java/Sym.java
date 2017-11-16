@@ -6,6 +6,9 @@
 
 /** CUP generated class containing symbol constants. */
 public class Sym {
+
+    // Replace with Enum?
+    
     /* terminals */
     static final int T_ASSIGN = 45;
     static final int T_BOOLEAN = 36;

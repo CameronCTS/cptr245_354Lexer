@@ -112,5 +112,28 @@ public class LexerTest {
         assertEquals(token3.GetLexeme(), ";");
     }
 
+    @Test
+    public void testGetTokenInt() {
+
+        lexer.readString("00FA;");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_INT_LITERAL);
+        assertEquals(token.GetLexeme(), "FA");
+    }
+
+    @Test
+    public void testGetTokenIntMultiple() {
+
+        lexer.readString("00FA0123456789H 00123456789023;");
+
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_INT_LITERAL);
+        assertEquals(token.GetLexeme(), "FA01234567H");
+
+        Token token2;
+        token2 = lexer.getToken();
+        assertEquals(token2.GetType(), Sym.T_INT_LITERAL);
+        assertEquals(token2.GetLexeme(), "1234567890");
+    }
 
 }
