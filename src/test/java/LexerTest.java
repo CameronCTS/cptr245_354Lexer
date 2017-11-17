@@ -21,7 +21,7 @@ public class LexerTest {
         char[] inputTestCharArray;
 
         inputCharString = lexer.readFile("src/main/inputTest.txt", StandardCharsets.UTF_8);
-        String inputTestString = "MODULE Hello;";
+        String inputTestString = "MODULE hello;";
         inputTestCharArray = inputTestString.toCharArray();
         assertArrayEquals(inputCharString, inputTestCharArray);
 
@@ -209,4 +209,53 @@ public class LexerTest {
         assertEquals(token.GetType(), Sym.T_REAL_LITERAL);
         assertEquals(token.GetLexeme(), "1.23456789D456");
     }
+
+    @Test
+    public void testGetTokenChar() {
+
+        lexer.readString("00A1FX;");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_CHAR_LITERAL);
+        assertEquals(token.GetLexeme(), "A1FX");
+    }
+
+    @Test
+    public void testGetTokenCharTooLong() {
+
+        lexer.readString("00a1FbffX;");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_CHAR_LITERAL);
+        assertEquals(token.GetLexeme(), "a1FX");
+    }
+
+
+    @Test
+    public void testGetTokenInclude() {
+
+        lexer.readString("INCLUDE \"src/main/inputTest.txt\";");
+        token = lexer.getToken();
+        assertEquals(token.GetType(), Sym.T_MODULE);
+        assertEquals(token.GetLexeme(), "MODULE");
+
+    }
+
+    /* This test doesn't pass because INCLUDE can only
+        retrieve the first lexeme in a file.
+
+
+    @Test
+    public void testGetTokenIncludeMultiple() {
+
+    lexer.readString("INCLUDE \"src/main/inputTest.txt\";");
+    token = lexer.getToken();
+    assertEquals(token.GetType(), Sym.T_MODULE);
+    assertEquals(token.GetLexeme(), "MODULE");
+
+    Token token2;
+    token2 = lexer.getToken();
+    assertEquals(token2.GetType(), Sym.T_ID);
+    assertEquals(token2.GetLexeme(), "hello");
+    }
+
+     */
 }

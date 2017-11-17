@@ -5,12 +5,15 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 
+// !! Please note that this Lexer assumes that all identifiers begin with a lowercase alphabetical character.
+
 public class Lexer {
 
-    private char[] charArray;
-    private int index = 0;
+    public char[] charArray;
+    public int index = 0;
     private HashMap<String, Integer> keywordHashMap = new HashMap<>();
     private boolean noPeriod = true;
+    private boolean notChar = true;
 
     // Method to read in a .txt file and output its contents as a char array.
     public char[] readFile(String path, Charset encoding) {
@@ -43,6 +46,7 @@ public class Lexer {
 
         String lexeme;
         int type = 0;
+        //int indexOrg;
         hashMapInit();
 
 
@@ -57,14 +61,29 @@ public class Lexer {
         if (Character.toString(charArray[index]).matches("[A-Z]")) {
 
             lexeme = keywordSearch();
-            type = keywordHashMap.get(lexeme);
-            return new Token(type, lexeme);
-
 
             // Add special case for INCLUDE token
+            if (lexeme.equals("INCLUDE")) {
+
+                String path = includeFilePath();
+                //indexOrg = index;   // Save the value of index.
+
+                IncludeFile includeFile = new IncludeFile();
+                Token tok = includeFile.include(path);
+                //index = indexOrg;   // Restore index.
+                return tok;
+            }
+
+            else {
+
+                type = keywordHashMap.get(lexeme);
+                return new Token(type, lexeme);
+            }
+
+
         }
 
-        // Tokenize ID
+        // Tokenize ID:
         if (Character.toString(charArray[index]).matches("[a-z]")) {
 
             lexeme = iDSearch();
@@ -72,19 +91,27 @@ public class Lexer {
 
         }
 
-        // Tokenize Int literal
+        // Tokenize Int literal.
         // If int literal contains a period, break and call realSearch
         // to find Real literal instead.
         if (Character.toString(charArray[index]).matches("[0-9]")) {
 
             lexeme = intSearch();
 
-            if (noPeriod) {
+            if (noPeriod && notChar) {
                 return new Token(Sym.T_INT_LITERAL, lexeme);
             }
 
-            lexeme = realSearch();
-            return new Token(Sym.T_REAL_LITERAL, lexeme);
+            else if (notChar) {
+                lexeme = realSearch();
+                return new Token(Sym.T_REAL_LITERAL, lexeme);
+            }
+
+            else if (noPeriod) {
+                lexeme = charSearch();
+                return new Token(Sym.T_CHAR_LITERAL, lexeme);
+            }
+
         }
 
         // Tokenize String literal
@@ -105,8 +132,6 @@ public class Lexer {
             lexeme = stringSearch("'");
             return new Token(Sym.T_STR_LITERAL, lexeme);
         }
-
-        // Tokenize Char literal
 
         // Tokenize punctuation tokens:
 
@@ -375,18 +400,25 @@ public class Lexer {
                 return lexemeStr;
             }
 
-            if (Character.toString(charArray[totalLength]).matches("[A-F0-9]")) {
+            if (Character.toString(charArray[totalLength]).matches("[a-fA-F0-9]")) {
                 lexemeStr += charArray[totalLength];
                 totalLength++;
                 stringLength++;
             }
 
+            // If a period is found, break out of the loop and call realSearch().
             if (Character.toString(charArray[totalLength]).matches("[.]")) {
                 // Don't adjust index to make sure realSearch() starts with the correct value.
                 noPeriod = false;
                 return lexemeStr;
             }
 
+            // If an X is found, the number is a Char literal. Break out of intSearch and call charSearch().
+            if (Character.toString(charArray[totalLength]).matches("[X]")) {
+                // Don't adjust index to make sure charSearch() starts with the correct value.
+                notChar = false;
+                return lexemeStr;
+            }
             // Add error case if a-z or G-Z are found.
 
 
@@ -396,7 +428,7 @@ public class Lexer {
         // Return the identifier truncated to 10 characters.
         if (stringLength >= 10) {
 
-            while (Character.toString(charArray[totalLength]).matches("[A-FH0-9]")) {
+            while (Character.toString(charArray[totalLength]).matches("[a-fA-FH0-9]")) {
 
                 // If H is found after more than 10 characters, append it as character 10 and
                 // return lexemeStr and print error message.
@@ -420,7 +452,7 @@ public class Lexer {
             }
 
             System.err.println("Int_literal too long.");
-            index = (totalLength - 1); // Put the non-identifier character back in the input stream.
+            index = (totalLength - 1); // Put the non-integer character back in the input stream.
             return lexemeStr;
 
         }
@@ -580,6 +612,102 @@ public class Lexer {
 
         index = totalLength;
         return lexemeStr;
+    }
+
+    private String charSearch() {
+        int totalLength = index;    // Marks the number of the character in the entire char array.
+        int stringLength = 0;       // Marks the number of the character in the sub array.
+        String lexemeStr = "";
+
+        while (Character.toString(charArray[totalLength]).matches("0")) {
+
+            totalLength++;
+        }
+
+        while (totalLength + 1 < charArray.length && stringLength < 3) {
+
+            // Return lexemeStr if X is found
+            if (Character.toString(charArray[totalLength]).matches("[xX]")) {
+                lexemeStr += charArray[totalLength];
+                totalLength++;
+                index = totalLength;
+                return lexemeStr;
+            }
+
+            if (Character.toString(charArray[totalLength]).matches("[a-fA-F0-9]")) {
+
+                lexemeStr += charArray[totalLength];
+                totalLength++;
+                stringLength++;
+            }
+
+        }
+
+        if (Character.toString(charArray[totalLength]).matches("[xX]")) {
+
+            lexemeStr += charArray[totalLength];
+            totalLength++;
+            index = totalLength;
+            return lexemeStr;
+        }
+
+        if (stringLength >= 3) {
+
+            while (Character.toString(charArray[totalLength]).matches("[a-fA-FX0-9]")) {
+
+                // If X is found after more than 3 characters, append it as character 3 and
+                // return lexemeStr and print error message.
+                if (Character.toString(charArray[totalLength]).matches("[xX]")) {
+
+                    lexemeStr += charArray[totalLength];
+                    System.err.println("Illegal character literal.");
+                    totalLength++;
+                    index = totalLength;
+                    return lexemeStr;
+                }
+
+                // Add error case if a-z or G-Z are found.
+
+                totalLength++;
+            }
+
+            System.err.println("Illegal character literal.");
+            index = (totalLength - 1); // Put the non-char literal character back in the input stream.
+            return lexemeStr;
+
+        }
+
+        index = totalLength;
+        return lexemeStr;
+    }
+
+    private String includeFilePath() {
+
+        String filePath = "";
+
+        while (Character.toString(charArray[index]).matches("\\s")) {
+            index++;
+        }
+
+        if (Character.toString(charArray[index]).matches("[\"]")) {
+
+            index++; // Increment past the ".
+            filePath = stringSearch("\"");
+        }
+
+        else if (Character.toString(charArray[index]).matches("[\']")) {
+
+            index++; // Increment past the '.
+            filePath = stringSearch("'");
+        }
+
+        else {
+
+            System.err.println("Illegal INCLUDE directive " + filePath + ".");
+        }
+
+        return filePath;
+
     }
 
     // Hash map to match strings to strings and token types.
